@@ -19,44 +19,68 @@ export default function HistoryScreen() {
       });
   }, []);
 
-  const labels = history.map(item => new Date(item.timestamp).toLocaleDateString());
-  const data = history.map((_, index) => index + 1); // Dados fictícios só para visualização da frequência
+  // Função para mapear humor em valor numérico
+  const moodToNumber = (mood) => {
+    if (!mood) return 3; // neutro padrão
+    switch (mood.toLowerCase()) {
+      case 'feliz': return 5;
+      case 'calmo': return 4;
+      case 'neutro': return 3;
+      case 'ansioso': return 2;
+      case 'triste': return 1;
+      default: return 3;
+    }
+  };
+
+  // Prepara labels (datas) e dados numéricos para gráfico
+  const labels = history.map(item => {
+    const date = new Date(item.timestamp);
+    return date.toLocaleDateString();
+  });
+
+  const data = history.map(item => moodToNumber(item.mood));
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Histórico de Humor</Text>
 
-      <LineChart
-        data={{
-          labels: labels,
-          datasets: [
-            {
-              data: data
+      {data.length > 0 ? (
+        <LineChart
+          data={{
+            labels: labels,
+            datasets: [
+              {
+                data: data
+              }
+            ]
+          }}
+          width={Dimensions.get('window').width - 40}
+          height={220}
+          yAxisInterval={1}
+          chartConfig={{
+            backgroundColor: '#121212',
+            backgroundGradientFrom: '#121212',
+            backgroundGradientTo: '#121212',
+            decimalPlaces: 0,
+            color: (opacity = 1) => `rgba(0, 255, 174, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            propsForDots: {
+              r: '5',
+              strokeWidth: '2',
+              stroke: '#00ffae'
             }
-          ]
-        }}
-        width={Dimensions.get('window').width - 40}
-        height={220}
-        yAxisInterval={1}
-        chartConfig={{
-          backgroundColor: '#121212',
-          backgroundGradientFrom: '#121212',
-          backgroundGradientTo: '#121212',
-          decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(0, 255, 174, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          propsForDots: {
-            r: '5',
-            strokeWidth: '2',
-            stroke: '#00ffae'
-          }
-        }}
-        bezier
-        style={{
-          borderRadius: 16,
-          marginBottom: 20
-        }}
-      />
+          }}
+          bezier
+          style={{
+            borderRadius: 16,
+            marginBottom: 20
+          }}
+        />
+      ) : (
+        <Text style={{ color: '#aaa', textAlign: 'center', marginBottom: 20 }}>
+          Nenhum dado para exibir no gráfico.
+        </Text>
+      )}
 
       {history.map((item, index) => (
         <View key={index} style={styles.entry}>
