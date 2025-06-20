@@ -13,8 +13,8 @@ support_centers = [
 ]
 
 @app.route('/')
-def index():
-    return jsonify({"message": "API de Apoio à Saúde Mental ativa"})
+def home():
+    return jsonify({"message": "API funcionando com sucesso!"})
 
 @app.route('/register-humor', methods=['POST'])
 def register_humor():
