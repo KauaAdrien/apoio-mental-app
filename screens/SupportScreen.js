@@ -6,7 +6,7 @@ export default function SupportScreen() {
   const [centers, setCenters] = useState([]);
 
   useEffect(() => {
-    axios.get('http://192.168.15.47:5000/support-centers')
+    axios.get('https://apoio-mental-app.onrender.com/support-centers')
       .then(response => setCenters(response.data));
   }, []);
 

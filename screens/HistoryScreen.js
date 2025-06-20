@@ -7,7 +7,7 @@ export default function HistoryScreen() {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    axios.get('http://192.168.15.47:5000/history-humor/usuario1')
+    axios.get('https://apoio-mental-app.onrender.com/history-humor/usuario1')
       .then(response => setHistory(response.data))
       .catch(error => {
         console.log('Erro ao buscar histórico:', error);

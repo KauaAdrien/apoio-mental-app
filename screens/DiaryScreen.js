@@ -7,7 +7,7 @@ export default function DiaryScreen() {
   const [entries, setEntries] = useState([]);
 
   const fetchDiary = () => {
-    axios.get('http://192.168.15.47:5000/diary/usuario1')
+    axios.get('https://apoio-mental-app.onrender.com/diary/usuario1')
       .then(response => setEntries(response.data))
       .catch(error => {
         console.log('Erro ao buscar diário:', error);
@@ -25,7 +25,7 @@ export default function DiaryScreen() {
       return;
     }
 
-    axios.post('http://192.168.15.47:5000/diary', {
+    axios.post('https://apoio-mental-app.onrender.com/diary', {
       user_id: 'usuario1',
       text
     }).then(() => {
