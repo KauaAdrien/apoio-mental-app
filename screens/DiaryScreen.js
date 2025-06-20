@@ -1,88 +1,122 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import axios from 'axios';
 
 export default function DiaryScreen() {
-  const [text, setText] = useState('');
-  const [entries, setEntries] = useState([]);
+  const [entry, setEntry] = useState('');
+  const [diary, setDiary] = useState([]);
+
+  const user_id = 'usuario1'; // Pode depois ser dinâmico
 
   const fetchDiary = () => {
-    axios.get('https://apoio-mental-app.onrender.com/diary/usuario1')
-      .then(response => setEntries(response.data))
+    axios.get(`https://apoio-mental-app.onrender.com/diary/${user_id}`)
+      .then(response => {
+        setDiary(response.data.reverse());
+      })
       .catch(error => {
         console.log('Erro ao buscar diário:', error);
-        Alert.alert('Erro', 'Não foi possível carregar os registros do diário.');
       });
+  };
+
+  const handleSave = () => {
+    if (!entry) {
+      alert('Escreva algo no diário.');
+      return;
+    }
+
+    axios.post('https://apoio-mental-app.onrender.com/diary', {
+      user_id: user_id,
+      text: entry
+    })
+    .then(() => {
+      setEntry('');
+      fetchDiary();
+    })
+    .catch(error => {
+      console.log('Erro ao salvar no diário:', error);
+      alert('Erro ao salvar no diário');
+    });
   };
 
   useEffect(() => {
     fetchDiary();
   }, []);
 
-  const submitDiary = () => {
-    if (!text) {
-      alert('Escreva algo no diário.');
-      return;
-    }
-
-    axios.post('https://apoio-mental-app.onrender.com/diary', {
-      user_id: 'usuario1',
-      text
-    }).then(() => {
-      alert('Diário salvo!');
-      setText('');
-      fetchDiary();
-    }).catch(error => {
-      console.log('Erro ao salvar no diário:', error);
-      alert('Erro ao salvar no diário');
-    });
-  };
-
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Diário Pessoal</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Diário</Text>
 
       <TextInput
-        placeholder="Escreva como se sente hoje..."
-        placeholderTextColor="#888"
-        value={text}
-        onChangeText={setText}
-        style={styles.input}
+        style={[styles.input, { height: 80 }]}
+        placeholder="Escreva como foi seu dia..."
+        placeholderTextColor="#aaa"
+        value={entry}
+        onChangeText={setEntry}
         multiline
-        numberOfLines={4}
       />
-      <Button title="Salvar no Diário" onPress={submitDiary} />
 
-      <Text style={styles.subtitle}>Registros Anteriores:</Text>
-      {entries.map((entry, index) => (
-        <View key={index} style={styles.item}>
-          <Text style={styles.text}>{entry.text}</Text>
-          <Text style={styles.date}>{new Date(entry.timestamp).toLocaleString()}</Text>
-        </View>
-      ))}
-    </ScrollView>
+      <TouchableOpacity style={styles.button} onPress={handleSave}>
+        <Text style={styles.buttonText}>Salvar</Text>
+      </TouchableOpacity>
+
+      <FlatList
+        data={diary}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.entry}>
+            <Text style={styles.entryDate}>{new Date(item.timestamp).toLocaleString()}</Text>
+            <Text style={styles.entryText}>{item.text}</Text>
+          </View>
+        )}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121212', padding: 20 },
-  title: { color: '#fff', fontSize: 24, marginBottom: 10 },
-  subtitle: { color: '#fff', fontSize: 18, marginVertical: 10 },
+  container: {
+    flex: 1,
+    backgroundColor: '#121212',
+    padding: 20
+  },
+  title: {
+    color: '#00ffae',
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: 'center'
+  },
   input: {
     backgroundColor: '#1f1f1f',
     color: '#fff',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-    minHeight: 100,
-    textAlignVertical: 'top'
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 10
   },
-  item: {
+  button: {
+    backgroundColor: '#00ffae',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  buttonText: {
+    color: '#121212',
+    fontWeight: 'bold'
+  },
+  entry: {
     backgroundColor: '#1f1f1f',
-    padding: 15,
+    padding: 10,
     borderRadius: 8,
     marginBottom: 10
   },
-  text: { color: '#fff' },
-  date: { color: '#aaa', fontSize: 12, marginTop: 5 }
+  entryDate: {
+    color: '#aaa',
+    fontSize: 12,
+    marginBottom: 4
+  },
+  entryText: {
+    color: '#fff',
+    fontSize: 16
+  }
 });

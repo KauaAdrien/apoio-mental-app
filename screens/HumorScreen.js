@@ -1,78 +1,99 @@
 import React, { useState } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, Share } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 
-export default function HumorScreen() {
+export default function RegisterHumorScreen() {
   const [mood, setMood] = useState('');
   const [note, setNote] = useState('');
 
-  const submitHumor = () => {
+  const handleRegisterHumor = () => {
     if (!mood) {
-      alert('Por favor, informe seu humor.');
+      alert('Selecione ou digite seu humor.');
       return;
     }
 
     axios.post('https://apoio-mental-app.onrender.com/register-humor', {
       user_id: 'usuario1',
-      mood,
-      note
-    }).then(() => {
+      mood: mood,
+      note: note
+    })
+    .then(() => {
       alert('Humor registrado com sucesso!');
       setMood('');
       setNote('');
+    })
+    .catch(error => {
+      console.log('Erro ao registrar humor:', error);
+      alert('Erro ao registrar humor.');
     });
-  };
-
-  const shareHumor = async () => {
-    try {
-      const result = await Share.share({
-        message: `Meu humor hoje está: ${mood}. Observação: ${note ? note : 'Sem observações.'}`,
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          console.log('Compartilhado via:', result.activityType);
-        } else {
-          console.log('Compartilhado');
-        }
-      } else if (result.action === Share.dismissedAction) {
-        console.log('Compartilhamento cancelado');
-      }
-    } catch (error) {
-      alert(error.message);
-    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Como está seu humor?</Text>
+      <Text style={styles.title}>Registrar Humor</Text>
+
+      <Text style={styles.label}>Como você está se sentindo?</Text>
       <TextInput
-        placeholder="Ex: Feliz, Triste..."
-        placeholderTextColor="#888"
+        style={styles.input}
+        placeholder="Ex.: Feliz, Triste, Ansioso..."
+        placeholderTextColor="#aaa"
         value={mood}
         onChangeText={setMood}
-        style={styles.input}
       />
+
+      <Text style={styles.label}>Observação (opcional)</Text>
       <TextInput
-        placeholder="Observações (opcional)"
-        placeholderTextColor="#888"
+        style={[styles.input, { height: 80 }]}
+        placeholder="Escreva algo sobre seu dia..."
+        placeholderTextColor="#aaa"
         value={note}
         onChangeText={setNote}
-        style={styles.input}
+        multiline
       />
-      <Button title="Registrar Humor" onPress={submitHumor} />
-      <View style={{ marginVertical: 10 }} />
-      <Button title="Compartilhar Humor" onPress={shareHumor} />
+
+      <TouchableOpacity style={styles.button} onPress={handleRegisterHumor}>
+        <Text style={styles.buttonText}>Registrar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#121212', padding: 20, gap: 10 },
-  label: { color: '#fff', fontSize: 18 },
+  container: {
+    flex: 1,
+    backgroundColor: '#121212',
+    padding: 20,
+    justifyContent: 'center'
+  },
+  title: {
+    color: '#00ffae',
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: 'center'
+  },
+  label: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 8
+  },
   input: {
     backgroundColor: '#1f1f1f',
     color: '#fff',
-    padding: 10,
-    borderRadius: 5
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 20
+  },
+  button: {
+    backgroundColor: '#00ffae',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center'
+  },
+  buttonText: {
+    color: '#121212',
+    fontWeight: 'bold',
+    fontSize: 16
   }
 });
+// This screen allows users to register their mood and an optional note.
