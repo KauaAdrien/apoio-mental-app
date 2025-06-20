@@ -9,7 +9,7 @@ export default function DiaryScreen() {
   const user_id = 'usuario1'; // Pode depois ser dinâmico
 
   const fetchDiary = () => {
-    axios.get(`https://apoio-mental-app.onrender.com/diary/${user_id}`)
+    axios.get(`http://192.168.15.47:5000/diary/${user_id}`)
       .then(response => {
         setDiary(response.data.reverse());
       })
@@ -24,7 +24,7 @@ export default function DiaryScreen() {
       return;
     }
 
-    axios.post('https://apoio-mental-app.onrender.com/diary', {
+    axios.post('http://192.168.15.47:5000/diary', {
       user_id: user_id,
       text: entry
     })

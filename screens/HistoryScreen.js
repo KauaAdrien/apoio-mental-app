@@ -1,27 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
 import axios from 'axios';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function HistoryScreen() {
   const [history, setHistory] = useState([]);
-
   const user_id = 'usuario1';
 
-  useEffect(() => {
-    axios.get(`https://apoio-mental-app.onrender.com/history-humor/${user_id}`)
+  const fetchHistory = () => {
+    axios.get(`http://192.168.15.47:5000/history-humor/${user_id}`)
       .then(response => {
         setHistory(response.data);
       })
       .catch(error => {
         console.log('Erro ao buscar histórico:', error);
       });
-  }, []);
+  };
 
-  // Função para mapear humor em valor numérico
+  // Busca dados ao montar e ao focar na tela
+  useFocusEffect(
+    useCallback(() => {
+      fetchHistory();
+    }, [])
+  );
+
+  // Mapeia humor para número
   const moodToNumber = (mood) => {
-    if (!mood) return 3; // neutro padrão
+    if (!mood) return 3;
     switch (mood.toLowerCase()) {
       case 'feliz': return 5;
       case 'calmo': return 4;
@@ -32,27 +39,26 @@ export default function HistoryScreen() {
     }
   };
 
-  // Prepara labels (datas) e dados numéricos para gráfico
-  const labels = history.map(item => {
+  const filteredHistory = history.filter(item => item.mood && item.timestamp);
+
+  const labels = filteredHistory.map(item => {
     const date = new Date(item.timestamp);
     return date.toLocaleDateString();
   });
 
-  const data = history.map(item => moodToNumber(item.mood));
+  const data = filteredHistory.map(item => moodToNumber(item.mood));
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Histórico de Humor</Text>
 
+      <Button title="Atualizar gráfico" onPress={fetchHistory} />
+
       {data.length > 0 ? (
         <LineChart
           data={{
             labels: labels,
-            datasets: [
-              {
-                data: data
-              }
-            ]
+            datasets: [{ data }]
           }}
           width={Dimensions.get('window').width - 40}
           height={220}
@@ -71,10 +77,7 @@ export default function HistoryScreen() {
             }
           }}
           bezier
-          style={{
-            borderRadius: 16,
-            marginBottom: 20
-          }}
+          style={{ borderRadius: 16, marginBottom: 20 }}
         />
       ) : (
         <Text style={{ color: '#aaa', textAlign: 'center', marginBottom: 20 }}>
@@ -82,7 +85,7 @@ export default function HistoryScreen() {
         </Text>
       )}
 
-      {history.map((item, index) => (
+      {filteredHistory.map((item, index) => (
         <View key={index} style={styles.entry}>
           <Text style={styles.entryDate}>{new Date(item.timestamp).toLocaleString()}</Text>
           <Text style={styles.entryMood}>Humor: {item.mood}</Text>

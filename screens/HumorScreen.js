@@ -12,7 +12,7 @@ export default function RegisterHumorScreen() {
       return;
     }
 
-    axios.post('https://apoio-mental-app.onrender.com/register-humor', {
+    axios.post('http://192.168.15.47:5000/register-humor', {
       user_id: 'usuario1',
       mood: mood,
       note: note
