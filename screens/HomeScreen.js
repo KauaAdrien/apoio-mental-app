@@ -1,31 +1,32 @@
 import React from 'react';
-import { View, Button, StyleSheet, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Como você está hoje?</Text>
-      <Button title="Registrar Humor" onPress={() => navigation.navigate('Registrar Humor')} />
-      <Button title="Histórico de Humor" onPress={() => navigation.navigate('Histórico')} />
-      <Button title="Locais de Apoio" onPress={() => navigation.navigate('Locais de Apoio')} />
-      <Button title="Contatos de Emergência" onPress={() => navigation.navigate('Emergência')} />
-      <Button title="Diário Pessoal" onPress={() => navigation.navigate('Diário')} />
+      <Text style={styles.title}>Bem-vindo ao Apoio Mental</Text>
+      <Text style={styles.subtitle}>Seu espaço seguro para monitorar seu humor e bem-estar.</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex:1,
     backgroundColor: '#121212',
+    alignItems: 'center',
     justifyContent: 'center',
-    gap: 20,
     padding: 20
   },
   title: {
-    color: '#fff',
+    color: '#00ffae',
     fontSize: 24,
-    marginBottom: 20,
+    marginBottom: 10,
+    textAlign: 'center'
+  },
+  subtitle: {
+    color: '#fff',
+    fontSize: 16,
     textAlign: 'center'
   }
 });

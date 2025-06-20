@@ -1,16 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import datetime
 
 app = Flask(__name__)
 CORS(app)
 
-# Banco de dados em memória (mock)
+# Dados simulados em memória
 users_data = {}
-support_centers = [
-    {"name": "CVV", "phone": "188", "location": "Nacional"},
-    {"name": "CAPS Centro", "phone": "(11) 1234-5678", "location": "São Paulo - SP"},
-]
+diary_data = {}
 
 @app.route('/')
 def home():
@@ -18,81 +15,47 @@ def home():
 
 @app.route('/register-humor', methods=['POST'])
 def register_humor():
-    data = request.json
+    data = request.get_json()
     user_id = data.get('user_id')
     mood = data.get('mood')
     note = data.get('note')
-    timestamp = datetime.datetime.now().isoformat()
+    timestamp = datetime.datetime.utcnow().isoformat()
 
     if user_id not in users_data:
-        users_data[user_id] = {'humor': [], 'emergency_contacts': []}
+        users_data[user_id] = []
 
-    users_data[user_id]['humor'].append({
+    users_data[user_id].append({
         'mood': mood,
         'note': note,
         'timestamp': timestamp
     })
 
-    return jsonify({"message": "Humor registrado com sucesso."})
+    return jsonify({'message': 'Humor registrado com sucesso.'})
 
 @app.route('/history-humor/<user_id>', methods=['GET'])
 def history_humor(user_id):
-    data = users_data.get(user_id, {}).get('humor', [])
-    return jsonify(data)
+    return jsonify(users_data.get(user_id, []))
 
-@app.route('/support-centers', methods=['GET'])
-def get_support_centers():
-    return jsonify(support_centers)
-
-@app.route('/emergency-contact', methods=['POST'])
-def add_emergency_contact():
-    data = request.json
-    user_id = data.get('user_id')
-    name = data.get('name')
-    phone = data.get('phone')
-
-    if user_id not in users_data:
-        users_data[user_id] = {'humor': [], 'emergency_contacts': []}
-
-    users_data[user_id]['emergency_contacts'].append({
-        'name': name,
-        'phone': phone
-    })
-
-    return jsonify({"message": "Contato adicionado com sucesso."})
-
-@app.route('/emergency-contact/<user_id>', methods=['GET'])
-def get_emergency_contacts(user_id):
-    contacts = users_data.get(user_id, {}).get('emergency_contacts', [])
-    return jsonify(contacts)
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-# Diário
 @app.route('/diary', methods=['POST'])
-def add_diary():
-    data = request.json
+def save_diary():
+    data = request.get_json()
     user_id = data.get('user_id')
     text = data.get('text')
-    timestamp = datetime.datetime.now().isoformat()
+    timestamp = datetime.datetime.utcnow().isoformat()
 
-    if not user_id or not text:
-        return jsonify({"error": "Dados inválidos"}), 400
+    if user_id not in diary_data:
+        diary_data[user_id] = []
 
-    if user_id not in users_data:
-        users_data[user_id] = {'humor': [], 'emergency_contacts': [], 'diary': []}
-
-    users_data[user_id]['diary'].append({
+    diary_data[user_id].append({
         'text': text,
         'timestamp': timestamp
     })
 
-    return jsonify({"message": "Diário registrado com sucesso."})
-
+    return jsonify({'message': 'Entrada no diário salva com sucesso.'})
 
 @app.route('/diary/<user_id>', methods=['GET'])
 def get_diary(user_id):
-    diary = users_data.get(user_id, {}).get('diary', [])
-    return jsonify(diary)
+    return jsonify(diary_data.get(user_id, []))
 
+if __name__ == '__main__':
+    app.run(debug=True)
