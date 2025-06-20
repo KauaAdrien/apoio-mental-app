@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: backend-apoio-mental
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn app:app
+    plan: free
